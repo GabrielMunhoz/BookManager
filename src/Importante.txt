@@ -1,0 +1,22 @@
+Adicionar 
+	Services 
+	Controller
+
+
+Adicionar features
+	Autenticacao 
+	Role-based
+	Swagger
+	CQRS (Estudar sobre)
+	Notificacao (Email, Whats)
+	IntegrarApi (pagamentos(pesquisar Sobre))
+
+Publicar 
+	Azure
+	Aws
+
+Rodar Migration 
+	Executar: cd .\BookManager.Api
+	Selecionar Package Manager Console: Defaul Project - src/BookManager.Infra
+	add-migration [NomeMigration] -o Migrations 
+	update-database
