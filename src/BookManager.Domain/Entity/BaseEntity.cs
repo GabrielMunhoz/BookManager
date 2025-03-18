@@ -2,13 +2,13 @@
 
 namespace BookManager.Domain.Entity;
 
-public class Base: IBaseEntity
+public class BaseEntity: IBaseEntity
 {
     public Guid Id { get; set; }
     public DateTime CreateDate { get; set; }
     public DateTime? UpdateDate { get; set; }
 
-    public Base()
+    public BaseEntity()
     {
         Id = Guid.NewGuid();
         CreateDate = DateTime.Now;

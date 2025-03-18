@@ -1,6 +1,6 @@
 ﻿namespace BookManager.Domain.Entity;
 
-public class Book : Base
+public class Book : BaseEntity
 {
     public string Title { get; set; }
     public string Autor { get; set; }

@@ -1,15 +1,16 @@
 Adicionar 
-	Services 
+	Services (Books, loan)
 	Controller
 
 
 Adicionar features
+	Usar Identity 
 	Autenticacao 
 	Role-based
 	Swagger
 	CQRS (Estudar sobre)
 	Notificacao (Email, Whats)
-	IntegrarApi (pagamentos(pesquisar Sobre))
+	IntegrarApi (pagamentos(pesquisar Sobre (paypal, strype, uol))
 
 Publicar 
 	Azure
