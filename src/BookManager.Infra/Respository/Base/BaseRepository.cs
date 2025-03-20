@@ -31,7 +31,7 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
         {
             IQueryable<TEntity>? _query = DbSet;
 
-            if(includes != null)
+            if (includes != null)
                 _query = includes(_query) as IQueryable<TEntity>;
 
             return _query.Where(predicate).AsQueryable();
@@ -84,14 +84,20 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
 
     public async Task<bool> UpdateAsync(TEntity model)
     {
-        EntityEntry<TEntity> entry = _context.Entry(model);
+        try
+        {
+            var existingEntity =
+                await _context.Set<TEntity>().FindAsync(model.Id) ??
+                    throw new InvalidOperationException("Entity not found.");
 
-        if (entry.State == EntityState.Detached)
-            _context.Set<TEntity>().Attach(model);
+            _context.Entry(model).State = EntityState.Modified;
 
-        entry.State = EntityState.Modified;
-
-        return await SaveAsync() > 0;
+            return await SaveAsync() > 0;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 
     public async Task<bool> DeleteAsync(Expression<Func<TEntity, bool>> where)
@@ -114,7 +120,7 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
         {
             EntityEntry<TEntity> entry = _context.Entry(model);
 
-            DbSet.Attach(model); 
+            DbSet.Attach(model);
 
             entry.State = EntityState.Deleted;
 
@@ -130,7 +136,7 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
     {
         try
         {
-            TEntity? model = await GetAsync(Keys); 
+            TEntity? model = await GetAsync(Keys);
 
             return (model != null) && await DeleteAsync(model);
         }
