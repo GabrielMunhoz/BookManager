@@ -5,9 +5,9 @@ namespace BookManager.Domain.Interface.Repositories.Base;
 
 public interface IBaseRespository<TEntity> : IDisposable where TEntity : IBaseEntity
 {
-    IQueryable<TEntity> QueryAsync(Expression<Func<TEntity, bool>> where);
+    IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> where);
     
-    IQueryable<TEntity> QueryAsync(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, object> includes);
+    IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, object> includes);
 
     Task<TEntity?> GetAsync(params object[] Keys);
 

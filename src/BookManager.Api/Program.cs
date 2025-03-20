@@ -1,5 +1,6 @@
 using BookManager.Api.Extensions;
 using BookManager.Infra.Data;
+using BookManager.IoC.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,10 @@ builder.Services.AddDbContext<BookManagerDbContext>(opt =>
             opt.UseSqlServer(builder.Configuration
                 .GetSection("ConnectionStrings")[ConstantsConf.BookConnection])
                 .EnableSensitiveDataLogging());
+
+
+builder.Services.ConfigServices();
+builder.Services.ConfigRepositories();
 
 var app = builder.Build();
 

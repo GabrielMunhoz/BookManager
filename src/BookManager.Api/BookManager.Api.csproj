@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BookManager.Infra\BookManager.Infra.csproj" />
+    <ProjectReference Include="..\BookManager.IoC\BookManager.IoC.csproj" />
   </ItemGroup>
 
 </Project>

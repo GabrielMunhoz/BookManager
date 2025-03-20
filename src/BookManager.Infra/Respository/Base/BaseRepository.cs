@@ -13,7 +13,7 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
 
     private readonly BookManagerDbContext _context = context;
 
-    public IQueryable<TEntity> QueryAsync(Expression<Func<TEntity, bool>> where)
+    public IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> where)
     {
         try
         {
@@ -25,7 +25,7 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
         }
     }
 
-    public IQueryable<TEntity> QueryAsync(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, object> includes)
+    public IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, object> includes)
     {
         try
         {
@@ -84,19 +84,14 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
 
     public async Task<bool> UpdateAsync(TEntity model)
     {
-        try
-        {
-            EntityEntry<TEntity> entry = _context.Entry(model);
-            DbSet.Attach(model);
+        EntityEntry<TEntity> entry = _context.Entry(model);
 
-            entry.State = EntityState.Modified;
+        if (entry.State == EntityState.Detached)
+            _context.Set<TEntity>().Attach(model);
 
-            return await SaveAsync() > 0;
-        }
-        catch (Exception)
-        {
-            throw;
-        }
+        entry.State = EntityState.Modified;
+
+        return await SaveAsync() > 0;
     }
 
     public async Task<bool> DeleteAsync(Expression<Func<TEntity, bool>> where)
@@ -151,7 +146,7 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
         {
             return await _context.SaveChangesAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             throw;
         }
