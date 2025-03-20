@@ -1,4 +1,4 @@
-﻿namespace BookManager.Api.Extensions;
+﻿namespace BookManager.Domain.Extensions;
 
 public static class ConstantsConf
 {

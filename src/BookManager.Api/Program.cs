@@ -1,4 +1,4 @@
-using BookManager.Api.Extensions;
+using BookManager.Domain.Extensions;
 using BookManager.Infra.Data;
 using BookManager.IoC.Extensions;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +17,7 @@ builder.Services.AddDbContext<BookManagerDbContext>(opt =>
                 .GetSection("ConnectionStrings")[ConstantsConf.BookConnection])
                 .EnableSensitiveDataLogging());
 
+SerilogExtension.LogsConfig(builder);
 
 builder.Services.ConfigServices();
 builder.Services.ConfigRepositories();

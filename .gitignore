@@ -6,3 +6,4 @@ src/.vs/*
 /src/BookManager.Api/.vs
 bin*
 obj*
+/src/BookManager.Api/Logs
