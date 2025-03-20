@@ -1,15 +1,16 @@
 Adicionar 
-	Services 
+	Services (Books, loan)
 	Controller
 
 
 Adicionar features
+	Usar Identity 
 	Autenticacao 
 	Role-based
 	Swagger
 	CQRS (Estudar sobre)
 	Notificacao (Email, Whats)
-	IntegrarApi (pagamentos(pesquisar Sobre))
+	IntegrarApi (pagamentos(pesquisar Sobre (paypal, strype, uol))
 
 Publicar 
 	Azure
@@ -20,3 +21,5 @@ Rodar Migration
 	Selecionar Package Manager Console: Defaul Project - src/BookManager.Infra
 	add-migration [NomeMigration] -o Migrations 
 	update-database
+
+Ao baixar, execute update-database - para refletir migrations

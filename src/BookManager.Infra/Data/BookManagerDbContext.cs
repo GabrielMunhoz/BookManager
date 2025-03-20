@@ -7,9 +7,9 @@ namespace BookManager.Infra.Data;
 
 public class BookManagerDbContext(DbContextOptions options) : DbContext(options)
 {
-    DbSet<Book> Books { get; set; }
-    DbSet<Loan> Loans { get; set; }
-    DbSet<UserBook> UserBooks { get; set; }
+    public DbSet<Book> Books { get; set; }
+    public DbSet<Loan> Loans { get; set; }
+    public DbSet<UserBook> UserBooks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

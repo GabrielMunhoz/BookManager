@@ -4,8 +4,6 @@ using BookManager.Infra.Data;
 using BookManager.Infra.Respository.Base;
 
 namespace BookManager.Infra.Respository;
-
-public class BookRepository(BookManagerDbContext context) : BaseRepository<Book>(context), IBookRepository
+public class UserBookRepository(BookManagerDbContext context) : BaseRepository<UserBook>(context), IUserBookRepository
 {
-
 }

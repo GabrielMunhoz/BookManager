@@ -14,13 +14,13 @@ public static class ModelBuilderConfig
             {
                 switch (property.Name)
                 {
-                    case nameof(Base.Id):
+                    case nameof(BaseEntity.Id):
                         property.IsKey();
                         break;
-                    case nameof(Base.UpdateDate):
+                    case nameof(BaseEntity.UpdateDate):
                         property.IsNullable = true;
                         break;
-                    case nameof(Base.CreateDate):
+                    case nameof(BaseEntity.CreateDate):
                         property.IsNullable = false;
                         break;
                     default:

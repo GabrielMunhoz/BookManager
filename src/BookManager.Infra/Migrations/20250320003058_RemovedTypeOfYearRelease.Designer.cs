@@ -4,6 +4,7 @@ using BookManager.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookManager.Infra.Migrations
 {
     [DbContext(typeof(BookManagerDbContext))]
-    partial class BookManagerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250320003058_RemovedTypeOfYearRelease")]
+    partial class RemovedTypeOfYearRelease
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,9 +44,6 @@ namespace BookManager.Infra.Migrations
 
                     b.Property<Guid?>("LoanId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("ReleaseYear")
-                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()

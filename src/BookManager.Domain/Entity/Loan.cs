@@ -1,6 +1,6 @@
 ﻿namespace BookManager.Domain.Entity;
 
-public class Loan: Base
+public class Loan: BaseEntity
 {
     public Guid IdUser { get; set; }
     public DateTime LoanDate { get; set; }
