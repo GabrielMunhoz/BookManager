@@ -19,6 +19,8 @@ builder.Services.AddDbContext<BookManagerDbContext>(opt =>
 
 SerilogExtension.LogsConfig(builder);
 
+builder.Services.AddHealthChecksConfig(builder.Configuration);
+
 builder.Services.ConfigServices();
 builder.Services.ConfigRepositories();
 
@@ -32,6 +34,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseHealthChecksConfig();
 
 app.UseAuthorization();
 
