@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookManager.Infra.Data;
 
-public class BookManagerDbContext(DbContextOptions options) : DbContext(options)
+public class BookManagerDbContext(DbContextOptions<BookManagerDbContext> options) : DbContext(options)
 {
     public DbSet<Book> Books { get; set; }
     public DbSet<Loan> Loans { get; set; }
