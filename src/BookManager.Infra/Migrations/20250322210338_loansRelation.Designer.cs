@@ -4,6 +4,7 @@ using BookManager.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookManager.Infra.Migrations
 {
     [DbContext(typeof(BookManagerDbContext))]
-    partial class BookManagerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250322210338_loansRelation")]
+    partial class loansRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,6 +66,9 @@ namespace BookManager.Infra.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("IdUser")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("LoanDate")
                         .HasColumnType("datetime2");
 
@@ -70,9 +76,6 @@ namespace BookManager.Infra.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<Guid>("UserBookId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");

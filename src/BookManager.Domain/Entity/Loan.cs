@@ -2,8 +2,9 @@
 
 public class Loan: BaseEntity
 {
-    public Guid IdUser { get; set; }
+    public Guid UserId { get; set; }
     public DateTime LoanDate { get; set; }
     public UserBook UserBook { get; set; }
-    public IList<Book> Books { get; set; }
+
+    public List<Book> Books { get; set; } = [];
 }

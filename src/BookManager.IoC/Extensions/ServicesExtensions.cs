@@ -12,6 +12,7 @@ public static class ServicesExtensions
     {
         services.AddScoped<IBookService, BookService>();
         services.AddScoped<IUserBookService, UserBookService>();
+        services.AddScoped<ILoanService, LoanService>();
 
         return services; 
     }
