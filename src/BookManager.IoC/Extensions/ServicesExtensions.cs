@@ -11,6 +11,7 @@ public static class ServicesExtensions
     public static IServiceCollection ConfigServices(this IServiceCollection services)
     {
         services.AddScoped<IBookService, BookService>();
+        services.AddScoped<IUserBookService, UserBookService>();
 
         return services; 
     }

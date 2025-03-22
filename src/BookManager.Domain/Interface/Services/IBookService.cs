@@ -1,10 +1,8 @@
 ﻿using BookManager.Domain.Entity;
+using System.Linq.Expressions;
 
 namespace BookManager.Domain.Interface.Services;
-public interface IBookService
+public interface IBookService : IBaseService<Book>
 {
-    Task<Book> GetBookByIdAsync(Guid bookId);
-    Task<IEnumerable<Book>> GetAllBooksAsync();
-    Task<Book> CreateBook(Book model);
-    Task<Book> UpdateBook(Book model);
+    IEnumerable<Book> GetQuery(Expression<Func<Book, bool>> where);
 }
