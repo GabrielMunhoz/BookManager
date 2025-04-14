@@ -1,5 +1,6 @@
 ﻿using BookManager.Domain.Entity;
 using BookManager.Domain.Interface.Services;
+using BookManager.Domain.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookManager.Api.Controllers;
@@ -14,7 +15,7 @@ public class LoanController(ILoanService loanService, ILogger<LoanController> lo
     [HttpPost(Name = "LoanCreateAsync")]
     [ProducesResponseType(200)]
     [ProducesResponseType(typeof(Loan), 200)]
-    public async Task<IActionResult> CreateAsync(Loan model)
+    public async Task<IActionResult> CreateAsync(LoanRequest model)
     {
         _logger.LogInformation("Invoked CreateAsync method");
 

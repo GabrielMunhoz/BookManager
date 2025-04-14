@@ -1,25 +1,36 @@
 ﻿using BookManager.Domain.Entity;
 using BookManager.Domain.Interface.Repositories;
 using BookManager.Domain.Interface.Services;
+using BookManager.Domain.Model;
 
 namespace BookManager.Business.Services;
 
-public class LoanService(IBookService bookService, 
-    IUserBookService userBookService, 
+public class LoanService(IBookService bookService,
+    IUserBookService userBookService,
     ILoanRepository loanRepository) : ILoanService
 {
     private readonly IUserBookService _userBookService = userBookService;
     private readonly ILoanRepository _loanRepository = loanRepository;
     private readonly IBookService _bookService = bookService;
 
-    public async Task<bool> CreateAsync(Loan model)
+    public async Task<bool> CreateAsync(LoanRequest model)
     {
-        ValidateBooksExisting(model);
+        ArgumentNullException.ThrowIfNull(model);
 
-        if (!await UserBooksExists(model.UserId))
-            return false;
+        Loan loan = new()
+        {
+            LoanDate = model.LoanDate,
+            UserId = model.UserId,
+            Books = new()
+        };
 
-        await _loanRepository.CreateAsync(model);
+        loan.Books.AddRange(model.Books.Select(x => new Book { Id = Guid.Parse(x) }));
+
+        ValidateBooksExisting(loan);
+
+        await ValidateUserBooksExists(loan);
+
+        await _loanRepository.CreateAsync(loan);
 
         return true;
     }
@@ -35,9 +46,9 @@ public class LoanService(IBookService bookService,
         model.Books = existingBooks;
     }
 
-    private async Task<bool> UserBooksExists(Guid UserId)
+    private async Task ValidateUserBooksExists(Loan model)
     {
-        return await _userBookService.GetByIdAsync(UserId) != null;
+        model.UserBook = await _userBookService.GetByIdAsync(model.UserId) ?? throw new InvalidOperationException();
     }
 
     public Task<bool> DeleteAsync(Loan model)
