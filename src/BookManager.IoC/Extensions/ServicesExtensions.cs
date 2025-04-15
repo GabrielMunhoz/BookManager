@@ -11,6 +11,8 @@ public static class ServicesExtensions
     public static IServiceCollection ConfigServices(this IServiceCollection services)
     {
         services.AddScoped<IBookService, BookService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ILoanService, LoanService>();
 
         return services; 
     }
@@ -18,7 +20,7 @@ public static class ServicesExtensions
     public static IServiceCollection ConfigRepositories(this IServiceCollection services)
     {
         services.AddScoped<IBookRepository, BookRepository>();
-        services.AddScoped<IUserBookRepository, UserBookRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ILoanRepository, LoanRepository>();
         return services; 
     }

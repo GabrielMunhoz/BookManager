@@ -2,6 +2,6 @@
 using BookManager.Domain.Interface.Repositories.Base;
 
 namespace BookManager.Domain.Interface.Repositories;
-public interface IUserBookRepository : IBaseRespository<UserBook>
+public interface IUserRepository : IBaseRespository<Users>
 {
 }

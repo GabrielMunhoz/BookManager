@@ -3,23 +3,28 @@ using BookManager.Domain.Interface.Repositories;
 using BookManager.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace BookManager.Infra.Respository;
 
-public class LoanRepository(BookManagerDbContext context) : ILoanRepository
+public class LoanRepository(BookManagerDbContext context, ILogger<LoanRepository> logger) : ILoanRepository
 {
     protected readonly DbSet<Loan> _dbSet = context.Set<Loan>();
+    private readonly ILogger<LoanRepository> _logger = logger;
 
     public async Task<bool> CreateAsync(Loan model)
     {
         try
         {
+            context.Entry(model.User).State = EntityState.Unchanged;
+
             _dbSet.Add(model);
             return await context.SaveChangesAsync() > 0;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Error on CreateAsync");
             throw;
         }
     }
@@ -45,7 +50,10 @@ public class LoanRepository(BookManagerDbContext context) : ILoanRepository
     {
         try
         {
-            return _dbSet.Where(where);
+            return _dbSet.Where(where)
+                .AsNoTracking()
+                .Include(x => x.User)
+                .Include(x => x.Books);
         }
         catch (Exception)
         {

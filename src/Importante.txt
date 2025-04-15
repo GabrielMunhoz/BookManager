@@ -19,7 +19,7 @@ Publicar
 Rodar Migration 
 	Executar: cd .\BookManager.Api
 	Selecionar Package Manager Console: Defaul Project - src/BookManager.Infra
-	add-migration [NomeMigration] -o Migrations 
-	update-database
+	add-migration [NomeMigration] -o Migrations -context BookManagerDbContext
+	update-database -context BookManagerDbContext
 
 Ao baixar, execute update-database - para refletir migrations

@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace BookManager.Infra.Mappings;
 
-public class UserBookMap : IEntityTypeConfiguration<UserBook>
+public class UserMap : IEntityTypeConfiguration<Users>
 {
-    public void Configure(EntityTypeBuilder<UserBook> builder)
+    public void Configure(EntityTypeBuilder<Users> builder)
     {
         builder.Property(u => u.Id).IsRequired();
         builder.Property(u => u.Name).IsRequired();

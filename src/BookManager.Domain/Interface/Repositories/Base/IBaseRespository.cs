@@ -9,8 +9,6 @@ public interface IBaseRespository<TEntity> : IDisposable where TEntity : IBaseEn
     
     IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> predicate, Func<IQueryable<TEntity>, object> includes);
 
-    Task<TEntity?> GetAsync(params object[] Keys);
-
     Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> where);
 
     Task<TEntity> CreateAsync(TEntity model);
@@ -21,7 +19,5 @@ public interface IBaseRespository<TEntity> : IDisposable where TEntity : IBaseEn
 
     Task<bool> DeleteAsync(TEntity model);
 
-    Task<bool> DeleteAsync(params object[] Keys);
-    
     Task<int> SaveAsync();
 }

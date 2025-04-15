@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookManager.Infra.Migrations
 {
     [DbContext(typeof(BookManagerDbContext))]
-    [Migration("20250315161058_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250415003824_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,8 +45,8 @@ namespace BookManager.Infra.Migrations
                     b.Property<Guid?>("LoanId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ReleaseYear")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("ReleaseYear")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -71,26 +71,24 @@ namespace BookManager.Infra.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("IdUser")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("LoanDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UserBookId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserBookId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Loans");
                 });
 
-            modelBuilder.Entity("BookManager.Domain.Entity.UserBook", b =>
+            modelBuilder.Entity("BookManager.Domain.Entity.Users", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -112,7 +110,7 @@ namespace BookManager.Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserBooks");
+                    b.ToTable("Users");
 
                     b.HasData(
                         new
@@ -133,13 +131,13 @@ namespace BookManager.Infra.Migrations
 
             modelBuilder.Entity("BookManager.Domain.Entity.Loan", b =>
                 {
-                    b.HasOne("BookManager.Domain.Entity.UserBook", "UserBook")
-                        .WithMany()
-                        .HasForeignKey("UserBookId")
+                    b.HasOne("BookManager.Domain.Entity.Users", "User")
+                        .WithOne()
+                        .HasForeignKey("BookManager.Domain.Entity.Loan", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("UserBook");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BookManager.Domain.Entity.Loan", b =>

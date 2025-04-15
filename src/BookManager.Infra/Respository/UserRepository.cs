@@ -2,8 +2,10 @@
 using BookManager.Domain.Interface.Repositories;
 using BookManager.Infra.Data;
 using BookManager.Infra.Respository.Base;
+using Microsoft.Extensions.Logging;
 
 namespace BookManager.Infra.Respository;
-public class UserBookRepository(BookManagerDbContext context) : BaseRepository<UserBook>(context), IUserBookRepository
+public class UserRepository(BookManagerDbContext context, ILogger<BaseRepository<Users>> logger) : 
+    BaseRepository<Users>(context, logger), IUserRepository
 {
 }

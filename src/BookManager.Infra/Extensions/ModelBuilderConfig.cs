@@ -33,7 +33,7 @@ public static class ModelBuilderConfig
 
     public static ModelBuilder SeedData(this ModelBuilder builder)
     {
-        builder.Entity<UserBook>().HasData(new UserBook
+        builder.Entity<Users>().HasData(new Users
         {
             Id = Guid.Parse("d0f606a2-622c-46b8-a844-ae0e817b1839"),
             Name = "Gabriel Munhoz",

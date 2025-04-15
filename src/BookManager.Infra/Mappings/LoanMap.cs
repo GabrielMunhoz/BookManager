@@ -11,7 +11,9 @@ public class LoanMap : IEntityTypeConfiguration<Loan>
         builder.Property(l => l.Id).IsRequired();
         builder.Property(l => l.LoanDate).IsRequired();
 
-        builder.HasOne(l => l.UserBook).WithMany();
-        builder.HasMany(l => l.Books).WithOne(); 
+        builder.HasOne(l => l.User).WithMany();
+
+        builder.HasMany(l => l.Books).WithOne();
+        builder.HasOne(l => l.User).WithOne(); 
     }
 }

@@ -9,12 +9,12 @@ public class BookManagerDbContext(DbContextOptions<BookManagerDbContext> options
 {
     public DbSet<Book> Books { get; set; }
     public DbSet<Loan> Loans { get; set; }
-    public DbSet<UserBook> UserBooks { get; set; }
+    public DbSet<Users> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new BookMap());
-        modelBuilder.ApplyConfiguration(new UserBookMap());
+        modelBuilder.ApplyConfiguration(new UserMap());
         modelBuilder.ApplyConfiguration(new LoanMap());
 
         modelBuilder.ApplyGlobalConfiguration();

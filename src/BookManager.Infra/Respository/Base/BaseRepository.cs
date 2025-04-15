@@ -3,15 +3,17 @@ using BookManager.Domain.Interface.Repositories.Base;
 using BookManager.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
 namespace BookManager.Infra.Respository.Base;
 
-public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespository<TEntity> where TEntity : BaseEntity
+public class BaseRepository<TEntity>(BookManagerDbContext context, ILogger<BaseRepository<TEntity>> logger) : IBaseRespository<TEntity> where TEntity : BaseEntity
 {
     protected DbSet<TEntity> DbSet => _context.Set<TEntity>();
 
     private readonly BookManagerDbContext _context = context;
+    private readonly ILogger<BaseRepository<TEntity>> _logger = logger;
 
     public IQueryable<TEntity> Query(Expression<Func<TEntity, bool>> where)
     {
@@ -19,8 +21,9 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
         {
             return DbSet.Where(where);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             throw;
         }
     }
@@ -36,21 +39,9 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
 
             return _query.Where(predicate).AsQueryable();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
-            throw;
-        }
-    }
-
-    public async Task<TEntity?> GetAsync(params object[] Keys)
-    {
-        try
-        {
-            return await DbSet.FindAsync(Keys);
-        }
-        catch (Exception)
-        {
+            _logger.LogError(ex, ex.Message);
             throw;
         }
     }
@@ -59,10 +50,13 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
     {
         try
         {
-            return await DbSet.AsNoTracking().FirstOrDefaultAsync(where);
+            return await DbSet
+                .AsNoTracking()
+                .FirstOrDefaultAsync(where);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             throw;
         }
     }
@@ -75,9 +69,9 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
             await SaveAsync();
             return model;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
+            _logger.LogError(ex, ex.Message);
             throw;
         }
     }
@@ -87,15 +81,16 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
         try
         {
             var existingEntity =
-                await _context.Set<TEntity>().FindAsync(model.Id) ??
+                await _context.Set<TEntity>().AsNoTracking().FirstAsync(x => x.Id == model.Id) ??
                     throw new InvalidOperationException("Entity not found.");
 
             _context.Entry(model).State = EntityState.Modified;
 
             return await SaveAsync() > 0;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             throw;
         }
     }
@@ -108,8 +103,9 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
 
             return (model != null) && await DeleteAsync(model);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             throw;
         }
     }
@@ -126,22 +122,9 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
 
             return await SaveAsync() > 0;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
-        }
-    }
-
-    public async Task<bool> DeleteAsync(params object[] Keys)
-    {
-        try
-        {
-            TEntity? model = await GetAsync(Keys);
-
-            return (model != null) && await DeleteAsync(model);
-        }
-        catch (Exception)
-        {
+            _logger.LogError(ex, ex.Message);
             throw;
         }
     }
@@ -154,6 +137,7 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             throw;
         }
     }
@@ -164,8 +148,9 @@ public class BaseRepository<TEntity>(BookManagerDbContext context) : IBaseRespos
         {
             _context?.Dispose();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             throw;
         }
     }
