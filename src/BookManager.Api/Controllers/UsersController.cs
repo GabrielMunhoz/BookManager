@@ -6,49 +6,49 @@ namespace BookManager.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserBookController(ILogger<UserBookController> logger, IUserBookService userBookService) : ControllerBase
+public class UsersController(ILogger<UsersController> logger, IUserService userService) : ControllerBase
 {
-    private readonly ILogger<UserBookController> _logger = logger;
-    private readonly IUserBookService _userBookService = userBookService;
+    private readonly ILogger<UsersController> _logger = logger;
+    private readonly IUserService _userService = userService;
 
     [HttpPost(Name = "UserCreateAsync")]
     [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(UserBook), 200)]
-    public async Task<IActionResult> CreateAsync(UserBook model)
+    [ProducesResponseType(typeof(Users), 200)]
+    public async Task<IActionResult> CreateAsync(Users model)
     {
         _logger.LogInformation("Invoked CreateAsync method"); 
 
-        return Ok(await _userBookService.CreateAsync(model));
+        return Ok(await _userService.CreateAsync(model));
     }
 
     [HttpGet(Name = "UserGetAllAsync")]
     [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(IEnumerable<UserBook>), 200)]
+    [ProducesResponseType(typeof(IEnumerable<Users>), 200)]
     public async Task<IActionResult> GetAllAsync()
     {
         _logger.LogInformation("Invoked GetAllAsync method"); 
 
-        return Ok(await _userBookService.GetAllAsync());
+        return Ok(await _userService.GetAllAsync());
     } 
     
     [HttpGet("{userId}" ,Name = "UserGetByIdAsync")]
     [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(UserBook), 200)]
+    [ProducesResponseType(typeof(Users), 200)]
     public async Task<IActionResult> GetUserByIdAsync(Guid userId)
     {
         _logger.LogInformation("Invoked GetByIdAsync method"); 
 
-        return Ok(await _userBookService.GetByIdAsync(userId));
+        return Ok(await _userService.GetByIdAsync(userId));
     }
 
     [HttpPut(Name = "UserUpdateAsync")]
     [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(UserBook), 200)]
-    public async Task<IActionResult> UpdateAsync(UserBook model)
+    [ProducesResponseType(typeof(Users), 200)]
+    public async Task<IActionResult> UpdateAsync(Users model)
     {
         _logger.LogInformation("Invoked UpdateAsync method");
         
-        return Ok(await _userBookService.UpdateAsync(model));
+        return Ok(await _userService.UpdateAsync(model));
     }
 
     [HttpDelete("{userId}", Name = "UserDeleteByIdAsync")]
@@ -58,6 +58,6 @@ public class UserBookController(ILogger<UserBookController> logger, IUserBookSer
     {
         _logger.LogInformation("Invoked DeleteByIdAsync method");
 
-        return Ok(await _userBookService.DeleteByIdAsync(userId));
+        return Ok(await _userService.DeleteByIdAsync(userId));
     }
 }

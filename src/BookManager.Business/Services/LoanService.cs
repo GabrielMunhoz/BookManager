@@ -1,34 +1,30 @@
-﻿using BookManager.Domain.Entity;
+﻿using AutoMapper;
+using BookManager.Domain.Entity;
 using BookManager.Domain.Interface.Repositories;
 using BookManager.Domain.Interface.Services;
-using BookManager.Domain.Model;
+using BookManager.Domain.Model.Loans;
 
 namespace BookManager.Business.Services;
 
 public class LoanService(IBookService bookService,
-    IUserBookService userBookService,
-    ILoanRepository loanRepository) : ILoanService
+    IUserService userService,
+    ILoanRepository loanRepository,
+    IMapper mapper) : ILoanService
 {
-    private readonly IUserBookService _userBookService = userBookService;
+    private readonly IUserService _userService = userService;
     private readonly ILoanRepository _loanRepository = loanRepository;
+    private readonly IMapper _mapper = mapper;
     private readonly IBookService _bookService = bookService;
 
     public async Task<bool> CreateAsync(LoanRequest model)
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        Loan loan = new()
-        {
-            LoanDate = model.LoanDate,
-            UserId = model.UserId,
-            Books = new()
-        };
-
-        loan.Books.AddRange(model.Books.Select(x => new Book { Id = Guid.Parse(x) }));
+        var loan = _mapper.Map<Loan>(model);
 
         ValidateBooksExisting(loan);
 
-        await ValidateUserBooksExists(loan);
+        await ValidateUserExists(loan);
 
         await _loanRepository.CreateAsync(loan);
 
@@ -46,9 +42,9 @@ public class LoanService(IBookService bookService,
         model.Books = existingBooks;
     }
 
-    private async Task ValidateUserBooksExists(Loan model)
+    private async Task ValidateUserExists(Loan model)
     {
-        model.UserBook = await _userBookService.GetByIdAsync(model.UserId) ?? throw new InvalidOperationException();
+        model.User = await _userService.GetByIdAsync(model.UserId) ?? throw new InvalidOperationException();
     }
 
     public Task<bool> DeleteAsync(Loan model)
@@ -56,10 +52,11 @@ public class LoanService(IBookService bookService,
         throw new NotImplementedException();
     }
 
-    public IEnumerable<Loan> GetAll()
+    public IEnumerable<LoanResponseList> GetAll()
     {
-        return _loanRepository
-            .Query(l => l.Id != Guid.Empty)
-            .AsEnumerable();
+        var result = _loanRepository
+         .Query(l => l.Id != Guid.Empty)
+         .AsEnumerable(); 
+        return _mapper.Map<IEnumerable<LoanResponseList>>(result);
     }
 }

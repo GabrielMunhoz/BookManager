@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookManager.Infra.Migrations
 {
     [DbContext(typeof(BookManagerDbContext))]
-    [Migration("20250322210338_loansRelation")]
-    partial class loansRelation
+    [Migration("20250415003824_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,9 @@ namespace BookManager.Infra.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("LoanId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("ReleaseYear")
                         .HasColumnType("int");
 
@@ -53,6 +56,8 @@ namespace BookManager.Infra.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LoanId");
 
                     b.ToTable("Books");
                 });
@@ -66,26 +71,24 @@ namespace BookManager.Infra.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("IdUser")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("LoanDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UserBookId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserBookId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Loans");
                 });
 
-            modelBuilder.Entity("BookManager.Domain.Entity.UserBook", b =>
+            modelBuilder.Entity("BookManager.Domain.Entity.Users", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -107,7 +110,7 @@ namespace BookManager.Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserBooks");
+                    b.ToTable("Users");
 
                     b.HasData(
                         new
@@ -119,45 +122,27 @@ namespace BookManager.Infra.Migrations
                         });
                 });
 
-            modelBuilder.Entity("LoanBooks", b =>
+            modelBuilder.Entity("BookManager.Domain.Entity.Book", b =>
                 {
-                    b.Property<Guid>("LoanId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BookId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("LoanId", "BookId");
-
-                    b.HasIndex("BookId");
-
-                    b.ToTable("LoanBooks");
+                    b.HasOne("BookManager.Domain.Entity.Loan", null)
+                        .WithMany("Books")
+                        .HasForeignKey("LoanId");
                 });
 
             modelBuilder.Entity("BookManager.Domain.Entity.Loan", b =>
                 {
-                    b.HasOne("BookManager.Domain.Entity.UserBook", "UserBook")
-                        .WithMany()
-                        .HasForeignKey("UserBookId")
+                    b.HasOne("BookManager.Domain.Entity.Users", "User")
+                        .WithOne()
+                        .HasForeignKey("BookManager.Domain.Entity.Loan", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("UserBook");
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("LoanBooks", b =>
+            modelBuilder.Entity("BookManager.Domain.Entity.Loan", b =>
                 {
-                    b.HasOne("BookManager.Domain.Entity.Book", null)
-                        .WithMany()
-                        .HasForeignKey("BookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BookManager.Domain.Entity.Loan", null)
-                        .WithMany()
-                        .HasForeignKey("LoanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Books");
                 });
 #pragma warning restore 612, 618
         }

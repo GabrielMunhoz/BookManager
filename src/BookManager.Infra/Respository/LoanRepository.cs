@@ -17,7 +17,7 @@ public class LoanRepository(BookManagerDbContext context, ILogger<LoanRepository
     {
         try
         {
-            context.Entry(model.UserBook).State = EntityState.Unchanged;
+            context.Entry(model.User).State = EntityState.Unchanged;
 
             _dbSet.Add(model);
             return await context.SaveChangesAsync() > 0;
@@ -52,7 +52,7 @@ public class LoanRepository(BookManagerDbContext context, ILogger<LoanRepository
         {
             return _dbSet.Where(where)
                 .AsNoTracking()
-                .Include(x => x.UserBook)
+                .Include(x => x.User)
                 .Include(x => x.Books);
         }
         catch (Exception)

@@ -1,9 +1,7 @@
-﻿namespace BookManager.Domain.Entity;
-
-public class Book : BaseEntity
+﻿namespace BookManager.Domain.Model.Books;
+public class BookResponseList
 {
     public string Title { get; set; }
     public string Autor { get; set; }
-    public string ISBN { get; set; }
     public int ReleaseYear { get; set; }
 }

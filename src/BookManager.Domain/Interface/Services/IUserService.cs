@@ -1,6 +1,6 @@
 ﻿using BookManager.Domain.Entity;
 
 namespace BookManager.Domain.Interface.Services;
-public interface IUserBookService : IBaseService<UserBook>
+public interface IUserService : IBaseService<Users>
 {
 }

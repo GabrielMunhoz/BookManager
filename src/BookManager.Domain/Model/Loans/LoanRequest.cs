@@ -1,8 +1,8 @@
-﻿namespace BookManager.Domain.Model;
+﻿namespace BookManager.Domain.Model.Loans;
 public class LoanRequest
 {
     public Guid UserId { get; set; }
     public DateTime LoanDate { get; set; } = DateTime.Now;
 
-    public List<string> Books { get; set; } = [];
+    public List<Guid> Books { get; set; } = [];
 }

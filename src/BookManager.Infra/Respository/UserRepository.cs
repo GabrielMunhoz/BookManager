@@ -5,7 +5,7 @@ using BookManager.Infra.Respository.Base;
 using Microsoft.Extensions.Logging;
 
 namespace BookManager.Infra.Respository;
-public class UserBookRepository(BookManagerDbContext context, ILogger<BaseRepository<UserBook>> logger) : 
-    BaseRepository<UserBook>(context, logger), IUserBookRepository
+public class UserRepository(BookManagerDbContext context, ILogger<BaseRepository<Users>> logger) : 
+    BaseRepository<Users>(context, logger), IUserRepository
 {
 }

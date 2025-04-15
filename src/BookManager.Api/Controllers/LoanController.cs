@@ -1,6 +1,6 @@
 ﻿using BookManager.Domain.Entity;
 using BookManager.Domain.Interface.Services;
-using BookManager.Domain.Model;
+using BookManager.Domain.Model.Loans;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookManager.Api.Controllers;
