@@ -1,23 +1,28 @@
 ﻿using BookManager.Domain.Entity;
 using BookManager.Domain.Interface.Repositories;
 using BookManager.Domain.Interface.Services;
+using FluentValidation;
 
 namespace BookManager.Business.Services;
 
-public class UserService(IUserRepository userRepository) : IUserService
+public class UserService(IUserRepository userRepository, IValidator<Users> validator) : IUserService
 {
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly IValidator<Users> _validator = validator;
 
     public async Task<Users> CreateAsync(Users model)
     {
         return await _userRepository.CreateAsync(model);
     }
 
-    public Task<IEnumerable<Users>> GetAllAsync()
+    public async Task<IEnumerable<Users>> GetAllAsync()
     {
-        return Task.FromResult(_userRepository
+        //Users user = new();
+        //await _validator.ValidateAndThrowAsync(user);
+
+        return _userRepository
             .Query(b => b.Id != Guid.Empty)
-            .AsEnumerable());
+            .AsEnumerable();
     }
 
     public async Task<Users> GetByIdAsync(Guid userId)

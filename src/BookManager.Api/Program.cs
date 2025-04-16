@@ -22,6 +22,7 @@ SerilogExtension.LogsConfig(builder);
 
 builder.Services.AddHealthChecksConfig(builder.Configuration);
 
+builder.Services.AddFluentValidation();
 builder.Services.ConfigServices();
 builder.Services.ConfigRepositories();
 
