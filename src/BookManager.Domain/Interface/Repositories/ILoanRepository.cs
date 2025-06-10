@@ -10,4 +10,7 @@ public interface ILoanRepository
 
     Task<bool> DeleteAsync(Loan model);
 
+    Task<Loan> GetByIdAsync(Guid id);
+
+    Task<bool> UpdateAsync (Loan model);
 }

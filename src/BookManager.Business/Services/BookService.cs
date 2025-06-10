@@ -1,4 +1,5 @@
-﻿using BookManager.Domain.Entity;
+﻿using BookManager.Domain.Commom.Results;
+using BookManager.Domain.Entity;
 using BookManager.Domain.Interface.Repositories;
 using BookManager.Domain.Interface.Services;
 using System.Linq.Expressions;
@@ -38,8 +39,8 @@ public class BookService(IBookRepository bookRepository) : IBookService
         return await _bookRepository.DeleteAsync(b => b.Id == id);
     }
 
-    public IEnumerable<Book> GetQuery(Expression<Func<Book, bool>> where)
+    public Task<Result<IEnumerable<Book>>> GetQueryAsync(Expression<Func<Book, bool>> where)
     {
-        return _bookRepository.Query(where).AsEnumerable();
+        return Task.FromResult(Result.Success(_bookRepository.Query(where).AsEnumerable()));
     }
 }

@@ -1,6 +1,8 @@
+using BookManager.Api.Extensions;
 using BookManager.Domain.Extensions;
 using BookManager.Infra.Data;
 using BookManager.IoC.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,6 +27,10 @@ builder.Services.AddHealthChecksConfig(builder.Configuration);
 builder.Services.AddFluentValidation();
 builder.Services.ConfigServices();
 builder.Services.ConfigRepositories();
+builder.Services.ConfigApiServices();
+builder.Services.ConfigNotifier();
+
+builder.Services.AddMvc(options => options.Filters.Add<NotifierFilter>());
 
 var app = builder.Build();
 

@@ -7,7 +7,7 @@ public class UserValidator : AbstractValidator<Users>
     public UserValidator()
     {
         RuleFor(x => x.Name).NotEmpty()
-            .WithMessage("Fucked name.");
+            .WithMessage("Name required.");
         RuleFor(x => x.Email).NotEmpty();
     }
 }

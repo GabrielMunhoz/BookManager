@@ -17,9 +17,6 @@ public class UserService(IUserRepository userRepository, IValidator<Users> valid
 
     public async Task<IEnumerable<Users>> GetAllAsync()
     {
-        //Users user = new();
-        //await _validator.ValidateAndThrowAsync(user);
-
         return _userRepository
             .Query(b => b.Id != Guid.Empty)
             .AsEnumerable();

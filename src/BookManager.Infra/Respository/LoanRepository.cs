@@ -60,4 +60,36 @@ public class LoanRepository(BookManagerDbContext context, ILogger<LoanRepository
             throw;
         }
     }
+
+    public async Task<Loan> GetByIdAsync(Guid id)
+    {
+        return await _dbSet
+            .FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<bool> UpdateAsync(Loan model)
+    {
+        try
+        {
+            _dbSet.Attach(model);
+            var entry = context.Entry(model);
+            entry.State = EntityState.Modified;
+
+            if (model.User != null)
+                context.Entry(model.User).State = EntityState.Unchanged;
+
+            if (model.Books != null)
+            {
+                await entry.Collection(l => l.Books).LoadAsync();
+                entry.Collection(l => l.Books).CurrentValue = model.Books;
+            }
+
+            return await context.SaveChangesAsync() > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error on UpdateAsync");
+            throw;
+        }
+    }
 }
