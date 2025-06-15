@@ -5,7 +5,7 @@ namespace BookManager.Domain.Interface.Services;
 public interface ILoanService
 {
     Task<Result<bool>> CreateAsync(LoanRequest model);
-    Task<Result<IEnumerable<LoanResponseList>>> GetAllAsync();
+    Task<Result<List<LoanResponseList>>> GetAllAsync();
     Task<Result<RequestReturnBook>> RequestReturnBookAsync(Guid loanId);
-    Task<Result<RequestReturnBook>> ReturnBookAsync(ReturnBookRequest returnBookRequest);
+    Task<Result<bool>> ReturnBookAsync(ReturnBookRequest returnBookRequest);
 }

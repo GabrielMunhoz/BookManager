@@ -46,14 +46,16 @@ public class LoanRepository(BookManagerDbContext context, ILogger<LoanRepository
         }
     }
 
-    public IQueryable<Loan> Query(Expression<Func<Loan, bool>> where)
+    public async Task<List<Loan>> QueryAsync(Expression<Func<Loan, bool>> where)
     {
         try
         {
-            return _dbSet.Where(where)
+            return await _dbSet
+                .Where(where)
                 .AsNoTracking()
                 .Include(x => x.User)
-                .Include(x => x.Books);
+                .Include(x => x.Books)
+                .ToListAsync();
         }
         catch (Exception)
         {

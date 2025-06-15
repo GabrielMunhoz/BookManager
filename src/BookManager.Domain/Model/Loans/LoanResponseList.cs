@@ -7,7 +7,7 @@ public class LoanResponseList
 {
     public Guid Id { get; set; }
     public UserResponseList User { get; set; }
-    public DateTime LoanDate { get; set; }
+    public DateTime ReturnDate { get; set; }
     public LoanStatus Status { get; set; }
     public List<BookResponseList> Books { get; set; } = [];
 }

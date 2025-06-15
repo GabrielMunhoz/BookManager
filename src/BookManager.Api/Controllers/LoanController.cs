@@ -1,4 +1,5 @@
-﻿using BookManager.Domain.Commom.Results;
+﻿using BookManager.Domain.Commom.Enums;
+using BookManager.Domain.Commom.Results;
 using BookManager.Domain.Interface.Common;
 using BookManager.Domain.Interface.Services;
 using BookManager.Domain.Model.Loans;
@@ -17,42 +18,36 @@ public class LoanController(ILoanService loanService,
     private readonly INotifier _notifier = notifier;
 
     [HttpPost("LoanCreateAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(Result<bool>), 200)]
+    [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateAsync(LoanRequest model)
     {
-        _logger.LogInformation("Invoked CreateAsync method");
+        _notifier.AddNotification(Issues.i001, "Invoked CreateAsync method");
 
         return Ok(await _loanService.CreateAsync(model));
     }
 
-    [HttpGet("LoanGetAll")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(Result<IEnumerable<LoanResponseList>>), 200)]
+    [HttpGet("LoanGetAllAsync")]
+    [ProducesResponseType(typeof(Result<IEnumerable<LoanResponseList>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
     {
-        _logger.LogInformation("Invoked GetAllAsync method");
-        _notifier.AddError("Teste", "Erro no teste");
-        _notifier.AddError("Teste", "Erro no teste");
+        _notifier.AddNotification(Issues.i002, "Invoked GetAllAsync method");
         return Ok(await _loanService.GetAllAsync());
     }
 
-    [HttpPatch("RequestReturnBookAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(Result<RequestReturnBook>), 200)]
+    [HttpGet("RequestReturnBookAsync")]
+    [ProducesResponseType(typeof(Result<RequestReturnBook>), StatusCodes.Status200OK)]
     public async Task<IActionResult> RequestReturnBookAsync(Guid id)
     {
-        _logger.LogInformation("Invoked RequestReturnBookAsync method");
+        _notifier.AddNotification(Issues.i003, "Invoked RequestReturnBookAsync method");
 
         return Ok(await _loanService.RequestReturnBookAsync(id));
     }
 
     [HttpPatch("Book/ReturnBookAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(Result<RequestReturnBook>), 200)]
+    [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ReturnBookAsync(ReturnBookRequest returnBookRequest)
     {
-        _logger.LogInformation("Invoked ReturnBookAsync method");
+        _notifier.AddNotification(Issues.i004, "Invoked ReturnBookAsync method");
 
         return Ok(await _loanService.ReturnBookAsync(returnBookRequest));
     }

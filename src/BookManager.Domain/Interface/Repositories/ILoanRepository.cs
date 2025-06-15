@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 namespace BookManager.Domain.Interface.Repositories;
 public interface ILoanRepository
 {
-    IQueryable<Loan> Query(Expression<Func<Loan,bool>> where);
+    Task<List<Loan>> QueryAsync(Expression<Func<Loan, bool>> where);
 
     Task<bool> CreateAsync(Loan model);
 

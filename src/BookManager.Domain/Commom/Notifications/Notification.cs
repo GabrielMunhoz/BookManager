@@ -1,12 +1,14 @@
-﻿namespace BookManager.Domain.Commom.Notifications;
+﻿using BookManager.Domain.Commom.Enums;
+
+namespace BookManager.Domain.Commom.Notifications;
 public class Notification
 {
-    public string Key { get; }
+    public Issues Issue { get; }
     public string Message { get; }
 
-    public Notification(string key, string message)
+    public Notification(Issues key, string message)
     {
-        Key = key;
+        Issue = key;
         Message = message;
     }
 }

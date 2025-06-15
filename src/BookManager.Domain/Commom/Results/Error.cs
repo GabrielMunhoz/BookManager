@@ -1,16 +1,17 @@
-﻿namespace BookManager.Domain.Commom.Results;
+﻿using BookManager.Domain.Commom.Enums;
+
+namespace BookManager.Domain.Commom.Results;
 public class Error
 {
-    public Error(string message)
+    public Error(Issues issue, string message)
     {
+        Issue = issue;
         Message = message;
     }
 
     public string Message { get; }
+    public Issues Issue { get; }
 
-    public static Error None => new(string.Empty);
+    public static Error None => new(Issues.none, string.Empty);
 
-    public static implicit operator Error(string message) => new(message);
-
-    public static implicit operator string(Error error) => error.Message;
 }

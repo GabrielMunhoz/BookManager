@@ -1,4 +1,5 @@
-﻿using BookManager.Domain.Entity;
+﻿using BookManager.Domain.Commom.Enums;
+using BookManager.Domain.Entity;
 using FluentValidation;
 
 namespace BookManager.Domain.Validations;
@@ -9,15 +10,18 @@ public class LoanValidator : AbstractValidator<Loan>
 
         RuleFor(loan => loan.ReturnDate)
             .GreaterThan(DateTime.MinValue)
-            .WithMessage("ReturnDate must be valid.");
+            .WithMessage("{PropertyName} must be valid.")
+            .WithErrorCode(Issues.e400.ToString());
 
         RuleFor(loan => loan.User)
             .NotNull()
-            .WithMessage("User is required");
+            .WithMessage("{PropertyName} is required")
+            .WithErrorCode(Issues.e400.ToString());
 
         RuleFor(loan => loan.Books)
-            .NotNull().WithMessage("Books is required")
-            .Must(books => books != null && books.Any())
-            .WithMessage("Books is required");
+            .NotNull()
+            .Must(books => books.Count > 0)
+            .WithMessage("{PropertyName} is required")
+            .WithErrorCode(Issues.e400.ToString());
     }
 }

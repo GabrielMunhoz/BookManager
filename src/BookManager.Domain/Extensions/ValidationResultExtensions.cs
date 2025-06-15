@@ -1,4 +1,5 @@
-﻿using BookManager.Domain.Commom.Results;
+﻿using BookManager.Domain.Commom.Enums;
+using BookManager.Domain.Commom.Results;
 using FluentValidation.Results;
 
 namespace BookManager.Domain.Extensions;
@@ -11,6 +12,6 @@ public static class ValidationResultExtensions
 
         var errorMessage = string.Join("; ", errorMessages);
 
-        return Result.Failure<T>(new Error(errorMessage));
+        return Result.Failure<T>(new Error(Issues.e400 ,errorMessage));
     }
 }

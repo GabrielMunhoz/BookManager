@@ -1,10 +1,12 @@
-﻿namespace BookManager.Domain.Commom.Results;
+﻿using BookManager.Domain.Commom.Enums;
+
+namespace BookManager.Domain.Commom.Results;
 public class Result
 {
     public Result(bool isSuccess, Error error)
     {
         IsSuccess = isSuccess;
-        Errors = new List<Error> { error };
+        Errors = error.Issue == Issues.none ? null : new() { error };
     }
 
     public Result(bool isSuccess, List<Error> errors)
@@ -14,7 +16,7 @@ public class Result
     }
 
     public bool IsSuccess { get; }
-    public List<Error> Errors { get; }
+    public List<Error>? Errors { get; }
 
     public static Result Success() => new(true, Error.None);
 
