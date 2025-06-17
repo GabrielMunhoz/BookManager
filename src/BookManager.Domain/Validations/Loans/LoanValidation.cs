@@ -2,7 +2,7 @@
 using BookManager.Domain.Entity;
 using FluentValidation;
 
-namespace BookManager.Domain.Validations;
+namespace BookManager.Domain.Validations.Loans;
 public class LoanValidator : AbstractValidator<Loan>
 {
     public LoanValidator()
@@ -21,6 +21,12 @@ public class LoanValidator : AbstractValidator<Loan>
         RuleFor(loan => loan.Books)
             .NotNull()
             .Must(books => books.Count > 0)
+            .WithMessage("{PropertyName} is required")
+            .WithErrorCode(Issues.e400.ToString());
+        
+        RuleFor(loan => loan.Status)
+            .NotNull()
+            .IsInEnum()
             .WithMessage("{PropertyName} is required")
             .WithErrorCode(Issues.e400.ToString());
     }

@@ -9,15 +9,11 @@ namespace BookManager.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class LoanController(ILoanService loanService, 
-    ILogger<LoanController> logger,
-    INotifier notifier) : ControllerBase
+public class LoanController(ILoanService _loanService, 
+    INotifier _notifier) : ControllerBase
 {
-    private readonly ILoanService _loanService = loanService;
-    private readonly ILogger<LoanController> _logger = logger;
-    private readonly INotifier _notifier = notifier;
-
-    [HttpPost("LoanCreateAsync")]
+    
+    [HttpPost("CreateAsync")]
     [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateAsync(LoanRequest model)
     {
@@ -26,12 +22,12 @@ public class LoanController(ILoanService loanService,
         return Ok(await _loanService.CreateAsync(model));
     }
 
-    [HttpGet("LoanGetAllAsync")]
-    [ProducesResponseType(typeof(Result<IEnumerable<LoanResponseList>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    [HttpPost("GetAllPagedAsync")]
+    [ProducesResponseType(typeof(PagedResult<LoanResponseList>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllPagedAsync(LoanFilterRequest loanFilterRequest, CancellationToken cancellationToken)
     {
-        _notifier.AddNotification(Issues.i002, "Invoked GetAllAsync method");
-        return Ok(await _loanService.GetAllAsync());
+        _notifier.AddNotification(Issues.i002, "Invoked GetAllPagedAsync method");
+        return Ok(await _loanService.GetAllAsync(loanFilterRequest, cancellationToken));
     }
 
     [HttpGet("RequestReturnBookAsync")]

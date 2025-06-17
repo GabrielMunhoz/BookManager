@@ -1,10 +1,11 @@
-﻿using BookManager.Domain.Entity;
+﻿using BookManager.Domain.Commom.Results;
+using BookManager.Domain.Entity;
 using BookManager.Domain.Interface.Repositories;
+using BookManager.Domain.Model.Loans;
 using BookManager.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
-using System.Linq.Expressions;
 
 namespace BookManager.Infra.Respository;
 
@@ -46,21 +47,54 @@ public class LoanRepository(BookManagerDbContext context, ILogger<LoanRepository
         }
     }
 
-    public async Task<List<Loan>> QueryAsync(Expression<Func<Loan, bool>> where)
+    public async Task<PagedResult<Loan>> QueryFilterPagedAsync(LoanFilterRequest loanFilterRequest, CancellationToken cancellationToken)
     {
         try
         {
-            return await _dbSet
-                .Where(where)
-                .AsNoTracking()
-                .Include(x => x.User)
-                .Include(x => x.Books)
-                .ToListAsync();
+            IQueryable<Loan> query = GetQueryFiltered(loanFilterRequest);
+
+            int totalCount = await query.CountAsync(cancellationToken);
+            int totalPages = (int)Math.Ceiling((double)totalCount / loanFilterRequest.PageSize);
+
+            var resultPaged = await query.Skip((loanFilterRequest.Page - 1) * loanFilterRequest.PageSize)
+                .Take(loanFilterRequest.PageSize)
+                .ToListAsync(cancellationToken);
+
+            var result = PagedResult<Loan>.Success(resultPaged);
+
+            result.TotalPage = totalPages;
+            result.TotalCount = totalCount;
+            result.Page = loanFilterRequest.Page;
+            result.PageSize = loanFilterRequest.PageSize;
+
+            return result;
+
         }
         catch (Exception)
         {
             throw;
         }
+    }
+
+    private IQueryable<Loan> GetQueryFiltered(LoanFilterRequest loanFilterRequest)
+    {
+        return _dbSet
+            .Include(x => x.User)
+            .Include(x => x.Books)
+            .Where(
+                loan =>
+                (string.IsNullOrEmpty(loanFilterRequest.UserName) || loan.User.Name.ToLower().Contains(loanFilterRequest.UserName.ToLower())) &&
+                (string.IsNullOrEmpty(loanFilterRequest.UserEmail) || loan.User.Email.ToLower().Contains(loanFilterRequest.UserEmail.ToLower())) &&
+                (string.IsNullOrEmpty(loanFilterRequest.BookTitle) || loan.Books.Any(x => x.Title.ToLower().Contains(loanFilterRequest.BookTitle.ToLower()))) &&
+                (!loanFilterRequest.StatusLoan.Any() || loanFilterRequest.StatusLoan.Contains(loan.Status)) &&
+                (((!loanFilterRequest.InitialReturnDate.HasValue && !loanFilterRequest.FinalReturnDate.HasValue) ||
+                    loan.ReturnDate >= loanFilterRequest.InitialReturnDate && loan.ReturnDate <= loanFilterRequest.FinalReturnDate)) &&
+                (((!loanFilterRequest.InitialCreateDate.HasValue && !loanFilterRequest.FinalCreateDate.HasValue) ||
+                    loan.CreateDate >= loanFilterRequest.InitialCreateDate && loan.CreateDate <= loanFilterRequest.FinalCreateDate))
+            )
+            .AsNoTracking()
+            .OrderByDescending(x => x.CreateDate)
+            .AsQueryable();
     }
 
     public async Task<Loan> GetByIdAsync(Guid id)

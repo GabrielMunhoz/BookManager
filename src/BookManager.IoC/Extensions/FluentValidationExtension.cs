@@ -1,4 +1,5 @@
 ﻿using BookManager.Domain.Validations;
+using BookManager.Domain.Validations.Loans;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 

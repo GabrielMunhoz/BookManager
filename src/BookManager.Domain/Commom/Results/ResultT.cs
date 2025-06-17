@@ -8,7 +8,7 @@ public class Result<T> : Result
         Data = data;
     }
     
-    public Result(bool isSuccess, List<Error> errors, T? data) : base(isSuccess, errors)
+    public Result(bool isSuccess, IEnumerable<Error> errors, T? data) : base(isSuccess, errors)
     {
         Data = data;
     }

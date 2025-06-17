@@ -10,7 +10,7 @@ public enum Issues
     /// </summary>
     i001,
     /// <summary>
-    /// LoanController - GetAll - Information
+    /// LoanController - GetAllPagedAsync - Information
     /// </summary>
     i002,
     /// <summary>
