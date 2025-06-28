@@ -1,5 +1,4 @@
 ﻿using BookManager.Domain.Validations;
-using BookManager.Domain.Validations.Loans;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -9,7 +8,6 @@ public static class FluentValidationExtension
     public static IServiceCollection ConfigFluentValidation(this IServiceCollection services)
     {
         services.AddValidatorsFromAssemblyContaining<UserValidator>();
-        services.AddValidatorsFromAssemblyContaining<LoanValidator>();
 
         return services;
     }

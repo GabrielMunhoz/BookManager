@@ -131,6 +131,11 @@ public enum Issues
     /// UsersService - DeleteByIdAsync - Information
     /// </summary>
     i1012,
+    /// <summary>
+    /// BookService - GetQueryAsync - Information
+    /// </summary>
+    i1013,
+
     #endregion
 
     #region Errors
