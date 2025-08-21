@@ -1,4 +1,5 @@
-﻿using BookManager.Domain.Commom.Results;
+﻿using BookManager.Domain.Commom.Enums;
+using BookManager.Domain.Commom.Results;
 using BookManager.Domain.Entity;
 using BookManager.Domain.Interface.Repositories;
 using BookManager.Domain.Model.Loans;
@@ -86,7 +87,7 @@ public class LoanRepository(BookManagerDbContext context, ILogger<LoanRepository
                 (string.IsNullOrEmpty(loanFilterRequest.UserName) || loan.User.Name.ToLower().Contains(loanFilterRequest.UserName.ToLower())) &&
                 (string.IsNullOrEmpty(loanFilterRequest.UserEmail) || loan.User.Email.ToLower().Contains(loanFilterRequest.UserEmail.ToLower())) &&
                 (string.IsNullOrEmpty(loanFilterRequest.BookTitle) || loan.Books.Any(x => x.Title.ToLower().Contains(loanFilterRequest.BookTitle.ToLower()))) &&
-                (!loanFilterRequest.StatusLoan.Any() || loanFilterRequest.StatusLoan.Contains(loan.Status)) &&
+                ((!loanFilterRequest.StatusLoan.Any() && loan.Status != LoanStatus.Completed) || loanFilterRequest.StatusLoan.Contains(loan.Status)) &&
                 (((!loanFilterRequest.InitialReturnDate.HasValue && !loanFilterRequest.FinalReturnDate.HasValue) ||
                     loan.ReturnDate >= loanFilterRequest.InitialReturnDate && loan.ReturnDate <= loanFilterRequest.FinalReturnDate)) &&
                 (((!loanFilterRequest.InitialCreateDate.HasValue && !loanFilterRequest.FinalCreateDate.HasValue) ||
