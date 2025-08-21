@@ -52,6 +52,8 @@ public class LoanService(IBookService _bookService,
             return Result.Failure<bool>(new Error(Issues.e1002, "Validation of existing user failed."));
         }
 
+        loan.TotalValue = loan.Books.Select(x => x.Value).Sum();
+
         await _loanRepository.CreateAsync(loan);
 
         return Result.Success(true);
@@ -137,7 +139,9 @@ public class LoanService(IBookService _bookService,
             Amount = returnBookRequest.Value,
         });
 
+        loan.PayedValue = returnBookRequest.Value;
         loan.Status = LoanStatus.Completed;
+
         var updateResult = await _loanRepository.UpdateAsync(loan);
         if (!updateResult)
             return Result.Failure<bool>(new Error(Issues.e1005, "Updating loan failed."));

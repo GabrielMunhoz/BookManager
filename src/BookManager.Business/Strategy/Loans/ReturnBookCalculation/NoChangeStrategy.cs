@@ -8,7 +8,7 @@ public class NoChangeStrategy : IReturnBookCalculationStrategy
 {
     public RequestReturnBook Calculate(Loan loan)
     {
-        decimal value = 10m;
+        decimal value = loan.TotalValue;
         return new RequestReturnBook
         {
             Message = "The return date is today",

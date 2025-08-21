@@ -8,7 +8,7 @@ public class DiscountStrategy : IReturnBookCalculationStrategy
 {
     public RequestReturnBook Calculate(Loan loan)
     {
-        decimal value = 10m;
+        decimal value = loan.TotalValue;
         decimal percent = 5m;
         return new RequestReturnBook
         {
