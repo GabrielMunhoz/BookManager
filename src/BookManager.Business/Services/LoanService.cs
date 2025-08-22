@@ -42,13 +42,9 @@ public class LoanService(
         try
         {
             using var transaction = _loanRepository.CreateTransactionAsync(cancellationToken);
+            
+            await UpdateStockBooks(model, loan);
 
-            loan.Books = _bookRepository.Query(b => model.Books.Contains(b.Id)).ToList();
-
-            loan.Books
-                .ForEach(x => x.Stock = x.Stock--);
-
-            // TODO - Avaliar porque salva somente um usuario no loan
             loan.User = await _userRepository.GetByIdAsync(model.UserId);
 
             loan.TotalValue = loan.Books.Select(x => x.Value).Sum();
@@ -72,6 +68,18 @@ public class LoanService(
             _notifier.AddError(Issues.e1015, ex.Message);
             return resultValidation.ToFailureResult<bool>();
         }
+    }
+
+    private async Task UpdateStockBooks(LoanRequest model, Loan loan)
+    {
+        loan.Books = _bookRepository.Query(b => model.Books.Contains(b.Id)).ToList();
+
+        foreach (var book in loan.Books) 
+        {
+            book.Stock -= 1;
+            await _bookRepository.UpdateAsync(book);
+        }
+
     }
 
     public async Task<PagedResult<LoanResponseList>> GetAllAsync(LoanFilterRequest loanFilterRequest, CancellationToken cancellationToken)

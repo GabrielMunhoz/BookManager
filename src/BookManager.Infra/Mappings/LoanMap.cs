@@ -14,6 +14,6 @@ public class LoanMap : IEntityTypeConfiguration<Loan>
         builder.Property(l => l.Status).HasConversion<int>().IsRequired();
 
         builder.HasMany(l => l.Books).WithOne();
-        builder.HasOne(l => l.User).WithOne(); 
+        builder.HasOne(l => l.User).WithMany(); 
     }
 }
