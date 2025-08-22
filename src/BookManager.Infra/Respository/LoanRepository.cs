@@ -102,6 +102,7 @@ public class LoanRepository(BookManagerDbContext context, ILogger<LoanRepository
     public async Task<Loan> GetByIdAsync(Guid id)
     {
         return await _dbSet
+            .Include(x => x.Books)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 

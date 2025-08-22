@@ -41,10 +41,10 @@ public class LoanController(ILoanService _loanService,
 
     [HttpPatch("Book/ReturnBookAsync")]
     [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> ReturnBookAsync(ReturnBookRequest returnBookRequest)
+    public async Task<IActionResult> ReturnBookAsync(ReturnBookRequest returnBookRequest, CancellationToken cancellationToken)
     {
         _notifier.AddNotification(Issues.i004, "Invoked ReturnBookAsync method");
 
-        return Ok(await _loanService.ReturnBookAsync(returnBookRequest));
+        return Ok(await _loanService.ReturnBookAsync(returnBookRequest, cancellationToken));
     }
 }

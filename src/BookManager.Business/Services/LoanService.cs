@@ -12,6 +12,7 @@ using BookManager.Domain.Model.ApiPayment;
 using BookManager.Domain.Model.Loans;
 using BookManager.Infra.ApiServices.Interfaces;
 using FluentValidation;
+using System.Threading;
 
 namespace BookManager.Business.Services;
 
@@ -42,8 +43,10 @@ public class LoanService(
         try
         {
             using var transaction = _loanRepository.CreateTransactionAsync(cancellationToken);
-            
-            await UpdateStockBooks(model, loan);
+
+            loan.Books = _bookRepository.Query(b => model.Books.Contains(b.Id)).ToList();
+
+            await UpdateStockBooks(loan, isIncrease:false);
 
             loan.User = await _userRepository.GetByIdAsync(model.UserId);
 
@@ -54,8 +57,8 @@ public class LoanService(
             if (!result)
             {
                 await _loanRepository.RollbackAsync(cancellationToken);
-                _notifier.AddError(Issues.e1015, "Error on creating loan");
-                return resultValidation.ToFailureResult<bool>();
+                _notifier.AddError(Issues.e1015, "Error on creating loan.");
+                return Result.Failure<bool>(new Error(Issues.e1015, "Error on creating loan."));
             }
 
             await _loanRepository.CommitAsync(cancellationToken);
@@ -66,17 +69,19 @@ public class LoanService(
         {
             await _loanRepository.RollbackAsync(cancellationToken);
             _notifier.AddError(Issues.e1015, ex.Message);
-            return resultValidation.ToFailureResult<bool>();
+            return Result.Failure<bool>(new Error(Issues.e1015, "Error on creating loan."));
         }
     }
 
-    private async Task UpdateStockBooks(LoanRequest model, Loan loan)
+    private async Task UpdateStockBooks(Loan loan, bool isIncrease)
     {
-        loan.Books = _bookRepository.Query(b => model.Books.Contains(b.Id)).ToList();
-
-        foreach (var book in loan.Books) 
+        foreach (var book in loan.Books)
         {
-            book.Stock -= 1;
+            if (isIncrease)
+                book.Stock += 1;
+            else
+                book.Stock -= 1;
+
             await _bookRepository.UpdateAsync(book);
         }
 
@@ -132,26 +137,49 @@ public class LoanService(
         };
     }
 
-    public async Task<Result<bool>> ReturnBookAsync(ReturnBookRequest returnBookRequest)
+    public async Task<Result<bool>> ReturnBookAsync(ReturnBookRequest returnBookRequest, CancellationToken cancellationToken)
     {
         _notifier.AddNotification(Issues.i1003, "Invoked ReturnBookAsync method in LoanService.");
 
         var loan = await _loanRepository.GetByIdAsync(returnBookRequest.IdLoan);
-        if (loan == null)
+        if (loan is null)
             return Result.Failure<bool>(new Error(Issues.e1004, "Loan not found."));
 
-        await _paymentProcessoStrategy.ProcessPayment(new ApiPaymentRequest
+        using var transaction = _loanRepository.CreateTransactionAsync(cancellationToken);
+
+        try
         {
-            Amount = returnBookRequest.Value,
-        });
+            var paymentResult = await _paymentProcessoStrategy.ProcessPayment(new ApiPaymentRequest
+            {
+                Amount = returnBookRequest.Value,
+            });
 
-        loan.PayedValue = returnBookRequest.Value;
-        loan.Status = LoanStatus.Completed;
+            if (paymentResult is null)
+            {
+                await _loanRepository.RollbackAsync(cancellationToken);
+                return Result.Failure<bool>(new Error(Issues.e1016, "Execute payment failed."));
+            }
 
-        var updateResult = await _loanRepository.UpdateAsync(loan);
-        if (!updateResult)
-            return Result.Failure<bool>(new Error(Issues.e1005, "Updating loan failed."));
+            loan.PayedValue = returnBookRequest.Value;
+            loan.Status = LoanStatus.Completed;
 
-        return Result.Success(true);
+            await UpdateStockBooks(loan, isIncrease: true);
+
+            var updateResult = await _loanRepository.UpdateAsync(loan);
+            if (!updateResult)
+            {
+                await _loanRepository.RollbackAsync(cancellationToken);
+                return Result.Failure<bool>(new Error(Issues.e1005, "Updating loan failed."));
+            }
+
+            await _loanRepository.CommitAsync(cancellationToken);
+            return Result.Success(true);
+        }
+        catch (Exception ex)
+        {
+            await _loanRepository.RollbackAsync(cancellationToken);
+            _notifier.AddError(Issues.e1017, ex.Message);
+            return Result.Failure<bool>(new Error(Issues.e1017, "Updating loan failed."));
+        }
     }
 }

@@ -203,6 +203,14 @@ public enum Issues
     /// LoanService - CreateAsync - Error on creating 
     /// </summary>
     e1015,
+    /// <summary>
+    /// LoanService - ReturnBookAsync - Execute payment failed
+    /// </summary>
+    e1016,
+    /// <summary>
+    /// LoanService - ReturnBookAsync - Exception
+    /// </summary>
+    e1017,
     #endregion
     #endregion
 }
