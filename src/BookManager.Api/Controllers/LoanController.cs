@@ -15,11 +15,11 @@ public class LoanController(ILoanService _loanService,
     
     [HttpPost("CreateAsync")]
     [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> CreateAsync(LoanRequest model)
+    public async Task<IActionResult> CreateAsync(LoanRequest model, CancellationToken cancellationToken)
     {
         _notifier.AddNotification(Issues.i001, "Invoked CreateAsync method");
 
-        return Ok(await _loanService.CreateAsync(model));
+        return Ok(await _loanService.CreateAsync(model, cancellationToken));
     }
 
     [HttpPost("GetAllPagedAsync")]

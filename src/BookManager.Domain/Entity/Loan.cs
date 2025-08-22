@@ -8,6 +8,8 @@ public class Loan : BaseEntity
     public DateTime ReturnDate { get; set; } = DateTime.Now.AddDays(7);
     public Users User { get; set; }
     public LoanStatus Status { get; set; } = LoanStatus.Active;
+    public decimal TotalValue { get; set; }
+    public decimal PayedValue { get; set; }
 
     public List<Book> Books { get; set; } = [];
 }

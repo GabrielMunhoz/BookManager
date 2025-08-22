@@ -7,4 +7,5 @@ public class Book : BaseEntity
     public string ISBN { get; set; }
     public int ReleaseYear { get; set; }
     public decimal Value { get; set; }
+    public int Stock { get; set; }
 }

@@ -5,4 +5,5 @@ namespace BookManager.Domain.Interface.Repositories;
 
 public interface IBookRepository : IBaseRespository<Book>
 {
+    Task<bool> IsInStockAsync(Guid bookId);
 }

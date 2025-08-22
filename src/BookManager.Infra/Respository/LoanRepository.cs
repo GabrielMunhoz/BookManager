@@ -6,6 +6,7 @@ using BookManager.Domain.Model.Loans;
 using BookManager.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
 namespace BookManager.Infra.Respository;
@@ -129,4 +130,13 @@ public class LoanRepository(BookManagerDbContext context, ILogger<LoanRepository
             throw;
         }
     }
+
+    public async Task<IDbContextTransaction> CreateTransactionAsync(CancellationToken cancellationToken)
+    => await context.Database.BeginTransactionAsync(cancellationToken);
+
+    public async Task CommitAsync(CancellationToken cancellationToken)
+        => await context.Database.CommitTransactionAsync(cancellationToken);
+
+    public async Task RollbackAsync(CancellationToken cancellationToken)
+       => await context.Database.RollbackTransactionAsync(cancellationToken);
 }

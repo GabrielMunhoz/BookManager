@@ -3,7 +3,9 @@ using BookManager.Domain.Interface.Repositories.Base;
 using BookManager.Infra.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using System.Data.Common;
 using System.Linq.Expressions;
 
 namespace BookManager.Infra.Respository.Base;
@@ -53,6 +55,21 @@ public class BaseRepository<TEntity>(BookManagerDbContext context, ILogger<BaseR
             return await DbSet
                 .AsNoTracking()
                 .FirstOrDefaultAsync(where);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            throw;
+        }
+    }
+
+    public async Task<TEntity?> GetByIdAsync(Guid id)
+    {
+        try
+        {
+            return await DbSet
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
         catch (Exception ex)
         {

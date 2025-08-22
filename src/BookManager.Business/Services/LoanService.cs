@@ -15,8 +15,9 @@ using FluentValidation;
 
 namespace BookManager.Business.Services;
 
-public class LoanService(IBookService _bookService,
-    IUserService _userService,
+public class LoanService(
+    IBookRepository _bookRepository,
+    IUserRepository _userRepository,
     ILoanRepository _loanRepository,
     IMapper _mapper,
     IValidator<Loan> _validator,
@@ -25,12 +26,12 @@ public class LoanService(IBookService _bookService,
     INotifier _notifier) : ILoanService
 {
 
-    public async Task<Result<bool>> CreateAsync(LoanRequest model)
+    public async Task<Result<bool>> CreateAsync(LoanRequest model, CancellationToken cancellationToken)
     {
         _notifier.AddNotification(Issues.i1000, "Invoked CreateAsync method in LoanService.");
         var loan = _mapper.Map<Loan>(model);
 
-        var resultValidation = _validator.Validate(loan);
+        var resultValidation = await _validator.ValidateAsync(loan);
         if (!resultValidation.IsValid)
         {
             _notifier.AddErrors(resultValidation);
@@ -38,49 +39,46 @@ public class LoanService(IBookService _bookService,
             return resultValidation.ToFailureResult<bool>();
         }
 
-        loan.Books = await ValidateAndReturnExistingBooks(loan);
-        if (loan.Books.Count <= 0)
+        try
         {
-            _notifier.AddError(Issues.e1001, "Validation of books failed.");
-            return Result.Failure<bool>(new Error(Issues.e1001, "Validation of existing books failed."));
-        }
+            using var transaction = _loanRepository.CreateTransactionAsync(cancellationToken);
 
-        loan.User = await ValidateAndReturnExistingUser(loan);
-        if (loan.User.Id == Guid.Empty)
+            loan.Books = _bookRepository.Query(b => model.Books.Contains(b.Id)).ToList();
+
+            loan.Books
+                .ForEach(x => x.Stock = x.Stock--);
+
+            // TODO - Avaliar porque salva somente um usuario no loan
+            loan.User = await _userRepository.GetByIdAsync(model.UserId);
+
+            loan.TotalValue = loan.Books.Select(x => x.Value).Sum();
+
+            var result = await _loanRepository.CreateAsync(loan);
+
+            if (!result)
+            {
+                await _loanRepository.RollbackAsync(cancellationToken);
+                _notifier.AddError(Issues.e1015, "Error on creating loan");
+                return resultValidation.ToFailureResult<bool>();
+            }
+
+            await _loanRepository.CommitAsync(cancellationToken);
+
+            return Result.Success(true);
+        }
+        catch (Exception ex)
         {
-            _notifier.AddError(Issues.e1002, "Validation of existing user failed.");
-            return Result.Failure<bool>(new Error(Issues.e1002, "Validation of existing user failed."));
+            await _loanRepository.RollbackAsync(cancellationToken);
+            _notifier.AddError(Issues.e1015, ex.Message);
+            return resultValidation.ToFailureResult<bool>();
         }
-
-        loan.TotalValue = loan.Books.Select(x => x.Value).Sum();
-
-        await _loanRepository.CreateAsync(loan);
-
-        return Result.Success(true);
-    }
-
-    private async Task<List<Book>> ValidateAndReturnExistingBooks(Loan model)
-    {
-        var bookIds = model.Books.Select(b => b.Id).ToList();
-
-        var existingBooks = await _bookService
-            .GetQueryAsync(b => bookIds.Contains(b.Id));
-
-        return existingBooks?.Data?.ToList() ?? new List<Book>();
-    }
-
-    private async Task<Users> ValidateAndReturnExistingUser(Loan model)
-    {
-        var mapped = _mapper.Map<Users>((await _userService.GetByIdAsync(model.UserId)).Data ?? new());
-
-        return mapped;
     }
 
     public async Task<PagedResult<LoanResponseList>> GetAllAsync(LoanFilterRequest loanFilterRequest, CancellationToken cancellationToken)
     {
         _notifier.AddNotification(Issues.i1001, "Invoked GetAllAsync method in LoanService.");
 
-        var resultValidation = _validatorRequest.Validate(loanFilterRequest);
+        var resultValidation = await _validatorRequest.ValidateAsync(loanFilterRequest);
         if (!resultValidation.IsValid)
         {
             _notifier.AddErrors(resultValidation);

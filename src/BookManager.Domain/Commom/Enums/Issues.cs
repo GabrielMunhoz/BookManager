@@ -195,6 +195,14 @@ public enum Issues
     /// UsersService - DeleteByIdAsync - Delete user failed
     /// </summary>
     e1013,
+    /// <summary>
+    /// LoanService - CreateAsync - Validate book in stock
+    /// </summary>
+    e1014,
+    /// <summary>
+    /// LoanService - CreateAsync - Error on creating 
+    /// </summary>
+    e1015,
     #endregion
     #endregion
 }
