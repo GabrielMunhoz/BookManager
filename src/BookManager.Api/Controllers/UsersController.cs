@@ -1,62 +1,57 @@
-using BookManager.Domain.Entity;
+using BookManager.Domain.Commom.Enums;
+using BookManager.Domain.Commom.Results;
+using BookManager.Domain.Interface.Common;
 using BookManager.Domain.Interface.Services;
+using BookManager.Domain.Model.User;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookManager.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController(ILogger<UsersController> logger, IUserService userService) : ControllerBase
+public class UsersController(INotifier _notifier, IUserService _userService) : ControllerBase
 {
-    private readonly ILogger<UsersController> _logger = logger;
-    private readonly IUserService _userService = userService;
-
-    [HttpPost(Name = "UserCreateAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(Users), 200)]
-    public async Task<IActionResult> CreateAsync(Users model)
+    [HttpPost("CreateAsync")]
+    [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> CreateAsync(UsersCreate usersCreate)
     {
-        _logger.LogInformation("Invoked CreateAsync method"); 
+        _notifier.AddNotification(Issues.i010, "Invoked CreateAsync method"); 
 
-        return Ok(await _userService.CreateAsync(model));
+        return Ok(await _userService.CreateAsync(usersCreate));
     }
 
-    [HttpGet(Name = "UserGetAllAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(IEnumerable<Users>), 200)]
+    [HttpGet("GetAllAsync")]
+    [ProducesResponseType(typeof(Result<IEnumerable<UsersList>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
-        _logger.LogInformation("Invoked GetAllAsync method"); 
+        _notifier.AddNotification(Issues.i011, "Invoked GetAllAsync method");
 
         return Ok(await _userService.GetAllAsync());
     } 
     
-    [HttpGet("{userId}" ,Name = "UserGetByIdAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(Users), 200)]
+    [HttpGet("GetByIdAsync/{userId}")]
+    [ProducesResponseType(typeof(Result<UsersDetail>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserByIdAsync(Guid userId)
     {
-        _logger.LogInformation("Invoked GetByIdAsync method"); 
+        _notifier.AddNotification(Issues.i012, "Invoked GetUserByIdAsync method");
 
         return Ok(await _userService.GetByIdAsync(userId));
     }
 
-    [HttpPut(Name = "UserUpdateAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(Users), 200)]
-    public async Task<IActionResult> UpdateAsync(Users model)
+    [HttpPatch("UpdateAsync")]
+    [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateAsync(UsersUpdate usersUpdate)
     {
-        _logger.LogInformation("Invoked UpdateAsync method");
-        
-        return Ok(await _userService.UpdateAsync(model));
+        _notifier.AddNotification(Issues.i013, "Invoked UpdateAsync method");
+
+        return Ok(await _userService.UpdateAsync(usersUpdate));
     }
 
-    [HttpDelete("{userId}", Name = "UserDeleteByIdAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(bool), 200)]
+    [HttpDelete("DeleteByIdAsync/{userId}")]
+    [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteByIdAsync(Guid userId)
     {
-        _logger.LogInformation("Invoked DeleteByIdAsync method");
+        _notifier.AddNotification(Issues.i014, "Invoked DeleteByIdAsync method");
 
         return Ok(await _userService.DeleteByIdAsync(userId));
     }

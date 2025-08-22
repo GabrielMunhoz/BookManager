@@ -1,62 +1,157 @@
 ﻿using AutoMapper;
+using BookManager.Business.Strategy.Loans.Interface;
+using BookManager.Business.Strategy.Loans.ReturnBookCalculation;
+using BookManager.Domain.Commom.Enums;
+using BookManager.Domain.Commom.Results;
 using BookManager.Domain.Entity;
+using BookManager.Domain.Extensions;
+using BookManager.Domain.Interface.Common;
 using BookManager.Domain.Interface.Repositories;
 using BookManager.Domain.Interface.Services;
+using BookManager.Domain.Model.ApiPayment;
 using BookManager.Domain.Model.Loans;
+using BookManager.Infra.ApiServices.Interfaces;
+using FluentValidation;
 
 namespace BookManager.Business.Services;
 
-public class LoanService(IBookService bookService,
-    IUserService userService,
-    ILoanRepository loanRepository,
-    IMapper mapper) : ILoanService
+public class LoanService(
+    IBookRepository _bookRepository,
+    IUserRepository _userRepository,
+    ILoanRepository _loanRepository,
+    IMapper _mapper,
+    IValidator<Loan> _validator,
+    IValidator<LoanFilterRequest> _validatorRequest,
+    IPaymentProcessorStrategy _paymentProcessoStrategy,
+    INotifier _notifier) : ILoanService
 {
-    private readonly IUserService _userService = userService;
-    private readonly ILoanRepository _loanRepository = loanRepository;
-    private readonly IMapper _mapper = mapper;
-    private readonly IBookService _bookService = bookService;
 
-    public async Task<bool> CreateAsync(LoanRequest model)
+    public async Task<Result<bool>> CreateAsync(LoanRequest model, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(model);
-
+        _notifier.AddNotification(Issues.i1000, "Invoked CreateAsync method in LoanService.");
         var loan = _mapper.Map<Loan>(model);
 
-        ValidateBooksExisting(loan);
+        var resultValidation = await _validator.ValidateAsync(loan);
+        if (!resultValidation.IsValid)
+        {
+            _notifier.AddErrors(resultValidation);
+            _notifier.AddError(Issues.e1000, "Validation of LoanRequest failed.");
+            return resultValidation.ToFailureResult<bool>();
+        }
 
-        await ValidateUserExists(loan);
+        try
+        {
+            using var transaction = _loanRepository.CreateTransactionAsync(cancellationToken);
+            
+            await UpdateStockBooks(model, loan);
 
-        await _loanRepository.CreateAsync(loan);
+            loan.User = await _userRepository.GetByIdAsync(model.UserId);
 
-        return true;
+            loan.TotalValue = loan.Books.Select(x => x.Value).Sum();
+
+            var result = await _loanRepository.CreateAsync(loan);
+
+            if (!result)
+            {
+                await _loanRepository.RollbackAsync(cancellationToken);
+                _notifier.AddError(Issues.e1015, "Error on creating loan");
+                return resultValidation.ToFailureResult<bool>();
+            }
+
+            await _loanRepository.CommitAsync(cancellationToken);
+
+            return Result.Success(true);
+        }
+        catch (Exception ex)
+        {
+            await _loanRepository.RollbackAsync(cancellationToken);
+            _notifier.AddError(Issues.e1015, ex.Message);
+            return resultValidation.ToFailureResult<bool>();
+        }
     }
 
-    private void ValidateBooksExisting(Loan model)
+    private async Task UpdateStockBooks(LoanRequest model, Loan loan)
     {
-        var bookIds = model.Books.Select(b => b.Id).ToList();
+        loan.Books = _bookRepository.Query(b => model.Books.Contains(b.Id)).ToList();
 
-        var existingBooks = _bookService
-            .GetQuery(b => bookIds.Contains(b.Id))
-            .ToList();
+        foreach (var book in loan.Books) 
+        {
+            book.Stock -= 1;
+            await _bookRepository.UpdateAsync(book);
+        }
 
-        model.Books = existingBooks;
     }
 
-    private async Task ValidateUserExists(Loan model)
+    public async Task<PagedResult<LoanResponseList>> GetAllAsync(LoanFilterRequest loanFilterRequest, CancellationToken cancellationToken)
     {
-        model.User = await _userService.GetByIdAsync(model.UserId) ?? throw new InvalidOperationException();
+        _notifier.AddNotification(Issues.i1001, "Invoked GetAllAsync method in LoanService.");
+
+        var resultValidation = await _validatorRequest.ValidateAsync(loanFilterRequest);
+        if (!resultValidation.IsValid)
+        {
+            _notifier.AddErrors(resultValidation);
+            _notifier.AddError(Issues.e1000, "Validation of loan filtering failed.");
+            return resultValidation.ToFailurePagedResult<LoanResponseList>();
+        }
+
+        var result = await _loanRepository
+         .QueryFilterPagedAsync(loanFilterRequest, cancellationToken);
+
+        var loanResponse = _mapper.Map<PagedResult<LoanResponseList>>(result);
+
+        return loanResponse;
     }
 
-    public Task<bool> DeleteAsync(Loan model)
+    public async Task<Result<RequestReturnBook>> RequestReturnBookAsync(Guid loanId)
     {
-        throw new NotImplementedException();
+        _notifier.AddNotification(Issues.i1002, "Invoked RequestReturnBookAsync method in LoanService.");
+
+        var loan = await _loanRepository.GetByIdAsync(loanId);
+        if (loan == null)
+            return Result.Failure<RequestReturnBook>(new Error(Issues.e1003, "Loan not found."));
+
+        return Result.Success(ProcessReturnBookRequest(loan));
     }
 
-    public IEnumerable<LoanResponseList> GetAll()
+    private RequestReturnBook ProcessReturnBookRequest(Loan loan)
     {
-        var result = _loanRepository
-         .Query(l => l.Id != Guid.Empty)
-         .AsEnumerable(); 
-        return _mapper.Map<IEnumerable<LoanResponseList>>(result);
+        IReturnBookCalculationStrategy strategy = GetStrategyByReturnStatus(loan);
+
+        return strategy.Calculate(loan);
+    }
+
+    private static IReturnBookCalculationStrategy GetStrategyByReturnStatus(Loan loan)
+    {
+        var status = loan.ReturnDate.Date.CompareTo(DateTime.Now.Date);
+
+        return status switch
+        {
+            < 0 => new InterestStrategy(),
+            > 0 => new DiscountStrategy(),
+            _ => new NoChangeStrategy()
+        };
+    }
+
+    public async Task<Result<bool>> ReturnBookAsync(ReturnBookRequest returnBookRequest)
+    {
+        _notifier.AddNotification(Issues.i1003, "Invoked ReturnBookAsync method in LoanService.");
+
+        var loan = await _loanRepository.GetByIdAsync(returnBookRequest.IdLoan);
+        if (loan == null)
+            return Result.Failure<bool>(new Error(Issues.e1004, "Loan not found."));
+
+        await _paymentProcessoStrategy.ProcessPayment(new ApiPaymentRequest
+        {
+            Amount = returnBookRequest.Value,
+        });
+
+        loan.PayedValue = returnBookRequest.Value;
+        loan.Status = LoanStatus.Completed;
+
+        var updateResult = await _loanRepository.UpdateAsync(loan);
+        if (!updateResult)
+            return Result.Failure<bool>(new Error(Issues.e1005, "Updating loan failed."));
+
+        return Result.Success(true);
     }
 }

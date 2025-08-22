@@ -1,62 +1,60 @@
-using BookManager.Domain.Entity;
+using BookManager.Domain.Commom.Enums;
+using BookManager.Domain.Commom.Results;
+using BookManager.Domain.Interface.Common;
 using BookManager.Domain.Interface.Services;
+using BookManager.Domain.Model.Books;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookManager.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class BookController(ILogger<BookController> logger, IBookService bookService) : ControllerBase
+public class BookController(INotifier notifier, IBookService bookService) : ControllerBase
 {
-    private readonly ILogger<BookController> _logger = logger;
+    private readonly INotifier _notifier = notifier;
     private readonly IBookService _bookService = bookService;
 
-    [HttpPost(Name = "BookCreateAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(Book), 200)]
-    public async Task<IActionResult> CreateAsync(Book model)
+    [HttpPost("CreateAsync")]
+    [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status201Created)]
+    public async Task<IActionResult> CreateAsync(BookCreate bookCreate)
     {
-        _logger.LogInformation("Invoked CreateAsync method"); 
+        _notifier.AddNotification(Issues.i005 , "Invoked CreateAsync method"); 
 
-        return Ok(await _bookService.CreateAsync(model));
+        return Ok(await _bookService.CreateAsync(bookCreate));
     }
 
-    [HttpGet(Name = "BookGetAllsAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(IEnumerable<Book>), 200)]
+    [HttpGet("GetAllAsync")]
+    [ProducesResponseType(typeof(Result<IEnumerable<BookList>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
-        _logger.LogInformation("Invoked GetAllAsync method"); 
+        _notifier.AddNotification(Issues.i006, "Invoked GetAllAsync method");
 
         return Ok(await _bookService.GetAllAsync());
     } 
     
-    [HttpGet("{bookId}", Name = "BookGetByIdAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(Book), 200)]
+    [HttpGet("GetByIdAsync/{bookId}")]
+    [ProducesResponseType(typeof(Result<BookDetail>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetBookByIdAsync(Guid bookId)
     {
-        _logger.LogInformation("Invoked GetByIdAsync method"); 
+        _notifier.AddNotification(Issues.i007, "Invoked GetBookByIdAsync method");
 
         return Ok(await _bookService.GetByIdAsync(bookId));
     }
 
-    [HttpPut(Name = "BookUpdateAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(Book), 200)]
-    public async Task<IActionResult> UpdateAsync(Book model)
+    [HttpPatch("UpdateAsync")]
+    [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateAsync(BookUpdate bookUpdate)
     {
-        _logger.LogInformation("Invoked UpdateAsync method");
-        
-        return Ok(await _bookService.UpdateAsync(model));
+        _notifier.AddNotification(Issues.i008, "Invoked UpdateAsync method");
+
+        return Ok(await _bookService.UpdateAsync(bookUpdate));
     }
 
-    [HttpDelete("{bookId}", Name = "BookDeleteByIdAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(bool), 200)]
+    [HttpDelete("DeleteByIdAsync/{bookId}")]
+    [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteByIdAsync(Guid bookId)
     {
-        _logger.LogInformation("Invoked DeleteByIdAsync method");
+        _notifier.AddNotification(Issues.i009, "Invoked DeleteByIdAsync method");
 
         return Ok(await _bookService.DeleteByIdAsync(bookId));
     }

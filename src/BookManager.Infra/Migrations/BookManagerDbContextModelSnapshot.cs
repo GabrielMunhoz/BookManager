@@ -45,12 +45,18 @@ namespace BookManager.Infra.Migrations
                     b.Property<int>("ReleaseYear")
                         .HasColumnType("int");
 
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Value")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -68,8 +74,17 @@ namespace BookManager.Infra.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("LoanDate")
+                    b.Property<decimal>("PayedValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("ReturnDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalValue")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -79,8 +94,7 @@ namespace BookManager.Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Loans");
                 });
@@ -129,8 +143,8 @@ namespace BookManager.Infra.Migrations
             modelBuilder.Entity("BookManager.Domain.Entity.Loan", b =>
                 {
                     b.HasOne("BookManager.Domain.Entity.Users", "User")
-                        .WithOne()
-                        .HasForeignKey("BookManager.Domain.Entity.Loan", "UserId")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

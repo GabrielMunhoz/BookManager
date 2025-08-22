@@ -6,8 +6,11 @@ using Microsoft.Extensions.Logging;
 
 namespace BookManager.Infra.Respository;
 
-public class BookRepository(BookManagerDbContext context, ILogger<BaseRepository<Book>> logger) : 
+public class BookRepository(BookManagerDbContext context, ILogger<BaseRepository<Book>> logger) :
     BaseRepository<Book>(context, logger), IBookRepository
 {
-
+    public async Task<bool> IsInStockAsync(Guid bookId)
+    {
+        return (await GetByIdAsync(bookId) ?? new()).Stock > 0;
+    }
 }

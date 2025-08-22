@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BookManager.Domain.Commom.Results;
 using BookManager.Domain.Entity;
 using BookManager.Domain.Model.Loans;
 
@@ -16,5 +17,6 @@ public class LoanProfile : Profile
                 opt.MapFrom(
                         s => new Users() { Id = s.UserId }));
         CreateMap<Loan, LoanResponseList>();
+        CreateMap<PagedResult<Loan>, PagedResult<LoanResponseList>>().ReverseMap();
     }
 }

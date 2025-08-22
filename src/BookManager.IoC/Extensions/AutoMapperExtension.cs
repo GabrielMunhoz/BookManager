@@ -8,7 +8,7 @@ public static class AutoMapperExtension
     {
         services.AddAutoMapper(
             typeof(LoanProfile),
-            typeof(BookProfile),
+            typeof(UserProfile),
             typeof(UserProfile)
             );
     }

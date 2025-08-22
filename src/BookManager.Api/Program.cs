@@ -1,6 +1,8 @@
+using BookManager.Api.Extensions;
 using BookManager.Domain.Extensions;
 using BookManager.Infra.Data;
 using BookManager.IoC.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,11 +23,22 @@ builder.Services.AddDbContext<BookManagerDbContext>(opt =>
 SerilogExtension.LogsConfig(builder);
 
 builder.Services.AddHealthChecksConfig(builder.Configuration);
-
+builder.Services.ConfigFluentValidation();
 builder.Services.ConfigServices();
 builder.Services.ConfigRepositories();
+builder.Services.ConfigApiServices();
+builder.Services.ConfigNotifier();
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+builder.Services.AddMvc(options => options.Filters.Add<NotifierFilter>());
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

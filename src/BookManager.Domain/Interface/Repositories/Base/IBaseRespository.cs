@@ -11,6 +11,8 @@ public interface IBaseRespository<TEntity> : IDisposable where TEntity : IBaseEn
 
     Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> where);
 
+    Task<TEntity?> GetByIdAsync(Guid id);
+
     Task<TEntity> CreateAsync(TEntity model);
 
     Task<bool> UpdateAsync(TEntity model);

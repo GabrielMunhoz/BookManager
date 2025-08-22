@@ -1,4 +1,6 @@
-﻿using BookManager.Domain.Entity;
+﻿using BookManager.Domain.Commom.Enums;
+using BookManager.Domain.Commom.Results;
+using BookManager.Domain.Interface.Common;
 using BookManager.Domain.Interface.Services;
 using BookManager.Domain.Model.Loans;
 using Microsoft.AspNetCore.Mvc;
@@ -7,28 +9,42 @@ namespace BookManager.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class LoanController(ILoanService loanService, ILogger<LoanController> logger) : ControllerBase
+public class LoanController(ILoanService _loanService, 
+    INotifier _notifier) : ControllerBase
 {
-    private readonly ILoanService _loanService = loanService;
-    private readonly ILogger<LoanController> _logger = logger;
-
-    [HttpPost(Name = "LoanCreateAsync")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(Loan), 200)]
-    public async Task<IActionResult> CreateAsync(LoanRequest model)
+    
+    [HttpPost("CreateAsync")]
+    [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> CreateAsync(LoanRequest model, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Invoked CreateAsync method");
+        _notifier.AddNotification(Issues.i001, "Invoked CreateAsync method");
 
-        return Ok(await _loanService.CreateAsync(model));
+        return Ok(await _loanService.CreateAsync(model, cancellationToken));
     }
 
-    [HttpGet(Name = "LoanGetAll")]
-    [ProducesResponseType(200)]
-    [ProducesResponseType(typeof(IEnumerable<Loan>), 200)]
-    public IActionResult GetAll()
+    [HttpPost("GetAllPagedAsync")]
+    [ProducesResponseType(typeof(PagedResult<LoanResponseList>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAllPagedAsync(LoanFilterRequest loanFilterRequest, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Invoked GetAllAsync method");
+        _notifier.AddNotification(Issues.i002, "Invoked GetAllPagedAsync method");
+        return Ok(await _loanService.GetAllAsync(loanFilterRequest, cancellationToken));
+    }
 
-        return Ok(_loanService.GetAll());
+    [HttpGet("RequestReturnBookAsync")]
+    [ProducesResponseType(typeof(Result<RequestReturnBook>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> RequestReturnBookAsync(Guid id)
+    {
+        _notifier.AddNotification(Issues.i003, "Invoked RequestReturnBookAsync method");
+
+        return Ok(await _loanService.RequestReturnBookAsync(id));
+    }
+
+    [HttpPatch("Book/ReturnBookAsync")]
+    [ProducesResponseType(typeof(Result<bool>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ReturnBookAsync(ReturnBookRequest returnBookRequest)
+    {
+        _notifier.AddNotification(Issues.i004, "Invoked ReturnBookAsync method");
+
+        return Ok(await _loanService.ReturnBookAsync(returnBookRequest));
     }
 }
