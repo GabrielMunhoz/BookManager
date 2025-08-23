@@ -72,6 +72,7 @@ public class UserService(IUserRepository _userRepository,
             return validatorResult.ToFailureResult<bool>();
 
         var updated =  await _userRepository.UpdateAsync(user);
+
         if (!updated)
             return Result.Failure<bool>(new Error(Issues.e1012, "Update user failed"));
 

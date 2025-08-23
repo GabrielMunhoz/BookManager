@@ -1,4 +1,5 @@
 ﻿namespace BookManager.Domain.Model.User;
+
 public class UsersList
 {
     public Guid Id { get; set; }
